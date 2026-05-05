@@ -1,105 +1,79 @@
+html {
+    box-sizing: border-box;
+}
+*, *:before, *:after {
+    box-sizing: inherit;
+}
 html, body {
-  margin: 0;
-  padding: 0;
-  width: 100%;
-  height: 100%;
-  overflow: hidden;
-  background: black;
-  box-sizing: border-box;
+    height: 100%;
 }
-
-*,
-*::before,
-*::after {
-  box-sizing: inherit;
+canvas {
+    display: block;
 }
-
+body {
+    margin: 0;
+}
 #unity-container {
-  position: absolute;
-  top: 0;
-  left: 50%;
-  transform: translateX(-50%);
-  background: black;
-  overflow: hidden;
+    width: 100%;
+    height: 100%;
 }
-
 #unity-canvas {
-  background: #231F20;
-  display: block;
-  width: 100%;
-  height: 100%;
+    width: 100%;
+    height: 100%;
+    background: #231F20;
 }
-
 #loading-cover {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  background: black;
-  z-index: 1000;
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
 }
-
 #unity-loading-bar {
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
-  width: 100%;
-  max-width: 600px;
-  padding: 20px;
+    flex: 1 1 auto;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
 }
-
-.centered-logo {
-  max-width: 80%;
-  margin-bottom: 30px;
+#unity-logo {
+    text-align: center;
 }
-
 #unity-logo img {
-  width: 100%;
-  height: auto;
-  display: block; /* Fix for logo not showing */
+    max-width: 80%;
 }
-
 #unity-progress-bar-empty {
-  width: 80%;
-  height: 24px;
-  margin: 10px 0;
-  border: 1px solid white;
-  padding: 2px;
-  display: none;
+    width: 80%;
+    height: 24px;
+    margin: 10px 20px 20px 10px;
+    text-align: left;
+    border: 1px solid white;
+    padding: 2px;
 }
-
 #unity-progress-bar-full {
-  width: 0%;
-  height: 100%;
-  background: white;
+    width: 0%;
+    height: 100%;
+    background: white;
 }
-
 .light #unity-progress-bar-empty {
-  border-color: black;
+    border-color: black;
 }
-
 .light #unity-progress-bar-full {
-  background: black;
+    background: black;
 }
 
-/* #unity-fullscreen-button {
-  position: fixed;
-  right: 20px;
-  bottom: 20px;
-  width: 38px;
-  height: 38px;
-  background: url('TemplateData/fullscreen-button.png') no-repeat center;
-  background-size: contain;
-  cursor: pointer;
-  z-index: 100;
-} */
- #unity-fullscreen-button { display: none !important; pointer-events: none !important; }
-
+#unity-fullscreen-button {
+    position: absolute;
+    right: 10px;
+    bottom: 10px;
+    width: 38px;
+    height: 38px;
+    background: url('fullscreen-button.png') no-repeat center;
+    background-size: contain;
+}
 
 .spinner,
 .spinner:after {
@@ -107,17 +81,18 @@ html, body {
   width: 5em;
   height: 5em;
 }
-
 .spinner {
+  margin: 10px;
   font-size: 10px;
+  position: relative;
+  text-indent: -9999em;
   border-top: 1.1em solid rgba(255, 255, 255, 0.2);
   border-right: 1.1em solid rgba(255, 255, 255, 0.2);
   border-bottom: 1.1em solid rgba(255, 255, 255, 0.2);
   border-left: 1.1em solid #ffffff;
-  animation: spinner-spin 1.1s infinite linear;
   transform: translateZ(0);
+  animation: spinner-spin 1.1s infinite linear;
 }
-
 @keyframes spinner-spin {
   0% {
     transform: rotate(0deg);
@@ -127,13 +102,4 @@ html, body {
   }
 }
 
-/* Mobile specific styles */
-@media screen and (max-width: 768px) {
-  .centered-logo {
-    max-width: 60%;
-  }
-  
-  #unity-loading-bar {
-    padding: 10px;
-  }
-}
+

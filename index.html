@@ -3,184 +3,98 @@
   <head>
     <meta charset="utf-8">
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <meta name="unity-webgl-version" content="1">
-    <meta name="unity-webgl-size" content="960,600">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
     <title>My project</title>
     <link rel="shortcut icon" href="TemplateData/favicon.ico">
-    <style>
-      /* Critical CSS */
-      body, html {
-        margin: 0;
-        padding: 0;
-        width: 100%;
-        height: 100%;
-        overflow: hidden;
-        background: black;
-      }
-      #unity-container {
-        position: absolute;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
-        display: flex;
-        justify-content: center;
-        background: black;
-      }
-      #unity-canvas {
-        width: 100%;
-        height: 100%;
-        max-width: 100%;
-        max-height: 100%;
-        object-fit: contain;
-      }
-      #loading-cover {
-        position: fixed;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        background: black;
-        z-index: 1000;
-      }
-    </style>
     <link rel="stylesheet" href="TemplateData/style.css">
   </head>
   <body class="dark">
-    <div id="unity-container">
-      <canvas id="unity-canvas" width="960" height="600"></canvas>
+    <div id="unity-container" class="unity-desktop">
+      <canvas id="unity-canvas"></canvas>
     </div>
-
-    <div id="loading-cover">
+    <div id="loading-cover" style="display:none;">
       <div id="unity-loading-bar">
-        <div id="unity-logo" class="centered-logo"><img src="TemplateData/logo.png" alt="Game Logo"/></div>
-        <div id="unity-progress-bar-empty">
+        <div id="unity-logo"><img src="logo.png"></div>
+        <div id="unity-progress-bar-empty" style="display: none;">
           <div id="unity-progress-bar-full"></div>
         </div>
         <div class="spinner"></div>
       </div>
     </div>
-
+    <div id="unity-fullscreen-button" style="display: none;"></div>
     <script>
-      // Configuration
-      var buildUrl = "Build";
-      var loaderUrl = buildUrl + "/f41dc3ee421cc62e88fabce4dd7ee5ac.loader.js";
-      
-      // Itch.io override
-      if (typeof window.unityWebGLLoaderUrl !== 'undefined') {
-        loaderUrl = window.unityWebGLLoaderUrl;
-        buildUrl = loaderUrl.substring(0, loaderUrl.lastIndexOf('/'));
-      }
-
-      var config = {
-        dataUrl: buildUrl + "/087415b7b75436a512f44c9b04a83ca1.data.gz",
+      const hideFullScreenButton = "";
+      const buildUrl = "Build";
+      const loaderUrl = buildUrl + "/26d888389efa466b74fda65fc370bbf5.loader.js";
+      const config = {
+        dataUrl: buildUrl + "/382a9fb760ebb13a640df9148ec5cf5f.data.gz",
         frameworkUrl: buildUrl + "/4057391d1befb5017671549c6bc565cd.framework.js.gz",
-        codeUrl: buildUrl + "/aebff1c3c9c2e736b2a006887e06eac2.wasm.gz",
+        codeUrl: buildUrl + "/235c45a025dc6c32e4ebaea0770f7099.wasm.gz",
         streamingAssetsUrl: "StreamingAssets",
         companyName: "DefaultCompany",
         productName: "My project",
-        productVersion: "1"
+        productVersion: "1",
       };
 
-      // Maintain aspect ratio
-      function maintainAspectRatio() {
-        const container = document.getElementById('unity-container');
-        const canvas = document.getElementById('unity-canvas');
-        const windowWidth = window.innerWidth;
-        const windowHeight = window.innerHeight;
-        const targetRatio = 16 / 9;
-        
-        let width, height;
-        
-        if (windowHeight * targetRatio > windowWidth) {
-          // Window is taller than 16:9
-          width = windowWidth;
-          height = width / targetRatio;
-        } else {
-          // Window is wider than 16:9
-          height = windowHeight;
-          width = height * targetRatio;
+      const container = document.querySelector("#unity-container");
+      const canvas = document.querySelector("#unity-canvas");
+      const loadingCover = document.querySelector("#loading-cover");
+      const progressBarEmpty = document.querySelector("#unity-progress-bar-empty");
+      const progressBarFull = document.querySelector("#unity-progress-bar-full");
+      const fullscreenButton = document.querySelector("#unity-fullscreen-button");
+      const spinner = document.querySelector('.spinner');
+      canvas.setAttribute("tabindex", "-1");
+
+      const releaseLoadingOverlay = () => {
+        loadingCover.style.display = "none";
+        loadingCover.style.pointerEvents = "none";
+      };
+
+      const canFullscreen = (function() {
+        for (const key of [
+            'exitFullscreen',
+            'webkitExitFullscreen',
+            'webkitCancelFullScreen',
+            'mozCancelFullScreen',
+            'msExitFullscreen',
+          ]) {
+          if (key in document) {
+            return true;
+          }
         }
-        
-        container.style.width = width + 'px';
-        container.style.height = height + 'px';
-        container.style.left = '50%';
-        container.style.transform = 'translateX(-50%)';
-        
-        canvas.width = width;
-        canvas.height = height;
+        return false;
+      }());
+
+      if (/iPhone|iPad|iPod|Android/i.test(navigator.userAgent)) {
+        container.className = "unity-mobile";
+        config.devicePixelRatio = 1;
       }
+      loadingCover.style.display = "";
 
-      // Initial setup
-      window.addEventListener('load', function() {
-        maintainAspectRatio();
-        
-        // Itch.io specific
-        if (typeof window.unityWebGLLoaderUrl !== 'undefined') {
-          document.dispatchEvent(new Event('unity-loaded'));
-        }
-      });
-
-      window.addEventListener('resize', maintainAspectRatio);
-      window.addEventListener('orientationchange', function() {
-        setTimeout(maintainAspectRatio, 100);
-      });
-
-      // Load Unity
-      var script = document.createElement("script");
+      const script = document.createElement("script");
       script.src = loaderUrl;
-      script.onload = function() {
-        createUnityInstance(document.getElementById("unity-canvas"), config, function(progress) {
-          // Progress updates if needed
-        }).then(function(unityInstance) {
-          document.getElementById("loading-cover").style.display = "none";
-          
-          // Fullscreen button if needed
-          if ("" !== "true") {
-            var fullscreenButton = document.createElement("div");
-            fullscreenButton.id = "unity-fullscreen-button";
-            document.body.appendChild(fullscreenButton);
-            fullscreenButton.onclick = function() {
+      script.onload = () => {
+        createUnityInstance(canvas, config, (progress) => {
+          spinner.style.display = "none";
+          progressBarEmpty.style.display = "";
+          progressBarFull.style.width = `${100 * progress}%`;
+        }).then((unityInstance) => {
+          releaseLoadingOverlay();
+          canvas.focus();
+          document.addEventListener("pointerdown", () => canvas.focus(), { once: true, capture: true });
+          if (canFullscreen) {
+            if (!hideFullScreenButton) {
+              fullscreenButton.style.display = "";
+            }
+            fullscreenButton.onclick = () => {
               unityInstance.SetFullscreen(1);
             };
           }
-        }).catch(function(message) {
-          console.error("Unity loading failed: ", message);
+        }).catch((message) => {
+          alert(message);
         });
       };
       document.body.appendChild(script);
-
-      // Function to enter fullscreen
-      function RequestFullscreen() {
-        var element = document.documentElement; // Get the whole document
-        if (element.requestFullscreen) {
-          element.requestFullscreen();
-        } else if (element.mozRequestFullScreen) { // Firefox
-          element.mozRequestFullScreen();
-        } else if (element.webkitRequestFullscreen) { // Chrome, Safari, Opera
-          element.webkitRequestFullscreen();
-        } else if (element.msRequestFullscreen) { // IE/Edge
-          element.msRequestFullscreen();
-        }
-      }
-
-      // Function to exit fullscreen
-      function ExitFullscreen() {
-        if (document.exitFullscreen) {
-          document.exitFullscreen();
-        } else if (document.mozCancelFullScreen) { // Firefox
-          document.mozCancelFullScreen();
-        } else if (document.webkitExitFullscreen) { // Chrome, Safari, Opera
-          document.webkitExitFullscreen();
-        } else if (document.msExitFullscreen) { // IE/Edge
-          document.msExitFullscreen();
-        }
-      }
-
     </script>
   </body>
 </html>

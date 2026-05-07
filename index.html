@@ -3,7 +3,7 @@
   <head>
     <meta charset="utf-8">
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <meta name="viewport" content="width=device-width, height=device-height, initial-scale=1.0, user-scalable=no, viewport-fit=cover">
     <title>My project</title>
     <link rel="shortcut icon" href="TemplateData/favicon.ico">
     <link rel="stylesheet" href="TemplateData/style.css">
@@ -50,7 +50,7 @@
       });
 
       const config = {
-        dataUrl: buildUrl + "/62c13f2f21bd5891133630136c46d008.data.gz",
+        dataUrl: buildUrl + "/7450124b53fd8de5e9405adb10a94dea.data.gz",
         frameworkUrl: buildUrl + "/dd5aa4afe1011678321ce4fdab6aedcb.framework.js.gz",
         codeUrl: buildUrl + "/90cb5e75e085c98be3cdfed72f6dd9e4.wasm.gz",
         streamingAssetsUrl: "StreamingAssets",
@@ -90,7 +90,19 @@
 
       if (/iPhone|iPad|iPod|Android/i.test(navigator.userAgent)) {
         container.className = "unity-mobile";
-        config.devicePixelRatio = 1;
+
+        // Adaptive DPR guardrail:
+        // - Default cap 1.5 for a balance of sharpness/performance.
+        // - Allow up to 2.0 on stronger devices.
+        // - Back off on likely low-memory devices.
+        const deviceMemory = navigator.deviceMemory || 0;
+        const cores = navigator.hardwareConcurrency || 0;
+        let dprCap = 1.5;
+        if (deviceMemory > 0 && deviceMemory <= 3) dprCap = 1.25;
+        if (deviceMemory >= 8 && cores >= 8) dprCap = 2;
+
+        const mobileDPR = Math.min(window.devicePixelRatio || 1, dprCap);
+        config.devicePixelRatio = mobileDPR;
       }
       loadingCover.style.display = "";
 
